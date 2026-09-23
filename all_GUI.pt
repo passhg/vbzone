@@ -1,23 +1,63 @@
 # ==============================================================================
 # Kivy GUI 위젯 전체 사용 예제 가이드
 # ==============================================================================
-# 각 섹션별로 독립 실행 가능한 예제입니다.
-# 실행: python kivy_widgets_guide.py [섹션번호]
-# 예: python kivy_widgets_guide.py 1   (버튼 예제 실행)
+# 실행: python kivy_widgets_guide.py [번호]
+# 예:   python kivy_widgets_guide.py 1   (버튼 예제)
 # ==============================================================================
 
 import sys
+import platform
+
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.gridlayout import GridLayout
+from kivy.uix.floatlayout import FloatLayout
+from kivy.uix.anchorlayout import AnchorLayout
+from kivy.uix.stacklayout import StackLayout
 from kivy.uix.label import Label
+from kivy.uix.button import Button
+from kivy.uix.togglebutton import ToggleButton
+from kivy.uix.textinput import TextInput
+from kivy.uix.codeinput import CodeInput
+from kivy.uix.image import Image, AsyncImage
+from kivy.uix.checkbox import CheckBox
+from kivy.uix.switch import Switch
+from kivy.uix.slider import Slider
+from kivy.uix.progressbar import ProgressBar
+from kivy.uix.scrollview import ScrollView
+from kivy.uix.tabbedpanel import TabbedPanel, TabbedPanelItem
+from kivy.uix.popup import Popup
+from kivy.uix.modalview import ModalView
+from kivy.uix.spinner import Spinner
+from kivy.uix.dropdown import DropDown
+from kivy.uix.actionbar import (
+    ActionBar, ActionView, ActionPrevious,
+    ActionButton, ActionOverflow, ActionGroup,
+)
+from kivy.uix.carousel import Carousel
+from kivy.uix.screenmanager import (
+    ScreenManager, Screen, SlideTransition,
+)
+from kivy.uix.filechooser import FileChooserIconView, FileChooserListView
+from kivy.uix.treeview import TreeView, TreeViewLabel
+from kivy.uix.colorpicker import ColorPicker
+from kivy.uix.scatter import Scatter
+from kivy.uix.videoplayer import VideoPlayer
+from kivy.uix.camera import Camera
+from kivy.uix.bubble import Bubble, BubbleButton
+from kivy.uix.stencilview import StencilView
+from kivy.uix.recycleview import RecycleView
+from kivy.uix.recycleboxlayout import RecycleBoxLayout
+from kivy.uix.recycleview.views import RecycleDataViewBehavior
+from kivy.graphics import Color as GfxColor, Rectangle
 from kivy.core.window import Window
 
-# 한글 폰트 설정 (환경에 맞게 수정)
-import platform
+
+# ── 한글 폰트 경로 (환경에 맞게 수정) ─────────────────────────────────────
 FONT_PATH = {
-    'Windows': 'C:/Windows/Fonts/malgun.ttf',
-    'Darwin': '/System/Library/Fonts/AppleSDGothicNeo.ttc',
-}.get(platform.system(), '/usr/share/fonts/truetype/nanum/NanumGothic.ttf')
+    "Windows": "C:/Windows/Fonts/malgun.ttf",
+    "Darwin": "/System/Library/Fonts/AppleSDGothicNeo.ttc",
+}.get(platform.system(), "/usr/share/fonts/truetype/nanum/NanumGothic.ttf")
 
 Window.size = (400, 600)
 
@@ -25,1413 +65,1000 @@ Window.size = (400, 600)
 # ==============================================================================
 # 1. 버튼 & 토글 버튼
 # ==============================================================================
-"""
-[버튼 Button]
-  - 가장 기본적인 클릭 가능한 위젯
-  - text: 버튼에 표시할 텍스트
-  - on_press / on_release: 클릭 이벤트
-  - font_size, size_hint, pos_hint 등으로 커스터마이징
+class Example1App(App):
+    """Button, ToggleButton 예제"""
 
-[토글 버튼 ToggleButton]
-  - on/off 상태를 가지는 버튼
-  - state: 'down'(눌림) / 'normal'(기본)
-  - group: 같은 group끼리 하나만 선택 가능 (라디오 버튼처럼)
-"""
-def example_1():
-    from kivy.uix.button import Button
-    from kivy.uix.togglebutton import ToggleButton
+    def build(self):
+        layout = BoxLayout(orientation="vertical", spacing=10, padding=20)
 
-    class MyApp(App):
-        def build(self):
-            layout = BoxLayout(orientation='vertical', spacing=10, padding=20)
+        # 일반 버튼
+        btn = Button(
+            text="클릭하세요",
+            font_name=FONT_PATH,
+            font_size=20,
+            size_hint=(1, 0.3),
+            background_color=(0.2, 0.6, 1, 1),
+        )
+        btn.bind(on_press=lambda x: print("버튼 눌림!"))
+        layout.add_widget(btn)
 
-            # 일반 버튼
-            btn = Button(
-                text='클릭하세요',
+        # 토글 버튼 (on/off)
+        toggle = ToggleButton(
+            text="토글: 꺼짐",
+            font_name=FONT_PATH,
+            font_size=18,
+            size_hint=(1, 0.3),
+        )
+
+        def on_toggle(instance):
+            instance.text = "토글: 켜짐" if instance.state == "down" else "토글: 꺼짐"
+
+        toggle.bind(state=on_toggle)
+        layout.add_widget(toggle)
+
+        # 토글 버튼 그룹 (라디오 버튼처럼 하나만 선택)
+        group_layout = BoxLayout(spacing=5)
+        for color in ["빨강", "초록", "파랑"]:
+            tb = ToggleButton(
+                text=color,
                 font_name=FONT_PATH,
-                font_size=20,
-                size_hint=(1, 0.3),
-                background_color=(0.2, 0.6, 1, 1)
+                group="colors",
+                font_size=16,
             )
-            btn.bind(on_press=lambda x: print('버튼 눌림!'))
-            layout.add_widget(btn)
+            tb.bind(on_press=lambda x, c=color: print(f"선택: {c}"))
+            group_layout.add_widget(tb)
+        layout.add_widget(group_layout)
 
-            # 토글 버튼 (on/off)
-            toggle = ToggleButton(
-                text='토글: 꺼짐',
-                font_name=FONT_PATH,
-                font_size=18,
-                size_hint=(1, 0.3)
-            )
-            def on_toggle(instance):
-                instance.text = '토글: 켜짐' if instance.state == 'down' else '토글: 꺼짐'
-            toggle.bind(state=on_toggle)
-            layout.add_widget(toggle)
-
-            # 토글 버튼 그룹 (라디오 버튼처럼)
-            group_layout = BoxLayout(spacing=5)
-            for i, color in enumerate(['빨강', '초록', '파랑']):
-                tb = ToggleButton(
-                    text=color,
-                    font_name=FONT_PATH,
-                    group='colors',  # 같은 그룹 → 하나만 선택
-                    font_size=16
-                )
-                tb.bind(on_press=lambda x, c=color: print(f'선택: {c}'))
-                group_layout.add_widget(tb)
-            layout.add_widget(group_layout)
-
-            return layout
-
-    MyApp().run()
+        return layout
 
 
 # ==============================================================================
 # 2. 텍스트 입력 & 코드 입력
 # ==============================================================================
-"""
-[TextInput]
-  - 사용자 텍스트 입력창
-  - multiline: 여러 줄 입력 (True/False)
-  - password: 비밀번호 모드
-  - input_filter: 입력 제한 ('int', 'float', 정규식 등)
-  - on_text_validate: Enter 키 이벤트
+class Example2App(App):
+    """TextInput, CodeInput 예제"""
 
-[CodeInput]
-  - 구문 강조가 있는 코드 입력창
-  - lexer: Pygments 렉서터 설정 가능
-"""
-def example_2():
-    from kivy.uix.textinput import TextInput
-    from kivy.uix.codeinput import CodeInput
+    def build(self):
+        layout = BoxLayout(orientation="vertical", spacing=10, padding=20)
 
-    class MyApp(App):
-        def build(self):
-            layout = BoxLayout(orientation='vertical', spacing=10, padding=20)
+        # 한 줄 입력
+        single = TextInput(
+            hint_text="이름을 입력하세요",
+            multiline=False,
+            size_hint=(1, 0.15),
+            font_size=18,
+        )
+        single.bind(on_text_validate=lambda x: print(f"입력: {x.text}"))
+        layout.add_widget(single)
 
-            # 한 줄 입력
-            single = TextInput(
-                hint_text='이름을 입력하세요',
-                multiline=False,
-                size_hint=(1, 0.15),
-                font_size=18
-            )
-            single.bind(on_text_validate=lambda x: print(f'입력: {x.text}'))
-            layout.add_widget(single)
+        # 비밀번호 입력
+        pwd = TextInput(
+            hint_text="비밀번호",
+            password=True,
+            multiline=False,
+            size_hint=(1, 0.15),
+        )
+        layout.add_widget(pwd)
 
-            # 비밀번호 입력
-            pwd = TextInput(
-                hint_text='비밀번호',
-                password=True,
-                multiline=False,
-                size_hint=(1, 0.15)
-            )
-            layout.add_widget(pwd)
+        # 숫자만 입력
+        num = TextInput(
+            hint_text="숫자만 입력",
+            input_filter="int",
+            multiline=False,
+            size_hint=(1, 0.15),
+        )
+        layout.add_widget(num)
 
-            # 숫자만 입력
-            num = TextInput(
-                hint_text='숫자만 입력',
-                input_filter='int',
-                multiline=False,
-                size_hint=(1, 0.15)
-            )
-            layout.add_widget(num)
+        # 여러 줄 입력
+        multi = TextInput(
+            hint_text="여러 줄 입력 가능",
+            multiline=True,
+            size_hint=(1, 0.3),
+        )
+        layout.add_widget(multi)
 
-            # 여러 줄 입력
-            multi = TextInput(
-                hint_text='여러 줄 입력 가능',
-                multiline=True,
-                size_hint=(1, 0.3)
-            )
-            layout.add_widget(multi)
+        # 코드 입력
+        code = CodeInput(
+            text='print("Hello, Kivy!")',
+            size_hint=(1, 0.25),
+            font_size=14,
+        )
+        layout.add_widget(code)
 
-            # 코드 입력
-            code = CodeInput(
-                text='print("Hello, Kivy!")',
-                size_hint=(1, 0.25),
-                font_size=14
-            )
-            layout.add_widget(code)
-
-            return layout
-
-    MyApp().run()
+        return layout
 
 
 # ==============================================================================
 # 3. 라벨 & 이미지
 # ==============================================================================
-"""
-[Label]
-  - 텍스트 표시 위젯
-  - markup: 마크업 태그 사용 가능 (b, i, font, color 등)
-  - halign: 수평 정렬 ('left', 'center', 'right')
-  - valign: 수직 정렬 ('top', 'middle', 'bottom')
-  - text_size: 텍스트 줄바꿈 너비 설정
+class Example3App(App):
+    """Label, Image, AsyncImage 예제"""
 
-[Image]
-  - 이미지 표시
-  - source: 로컬 파일 경로
-  - allow_stretch: 이미지 늘리기 허용
-  - keep_ratio: 비율 유지
+    def build(self):
+        layout = BoxLayout(orientation="vertical", spacing=10, padding=20)
 
-[AsyncImage]
-  - URL에서 비동기로 이미지 로딩
-  - 로딩 중에도 UI가 멈추지 않음
-"""
-def example_3():
-    from kivy.uix.label import Label
-    from kivy.uix.image import Image, AsyncImage
+        # 기본 라벨
+        layout.add_widget(Label(
+            text="기본 라벨",
+            font_name=FONT_PATH,
+            font_size=24,
+            size_hint=(1, 0.2),
+        ))
 
-    class MyApp(App):
-        def build(self):
-            layout = BoxLayout(orientation='vertical', spacing=10, padding=20)
+        # 마크업 라벨
+        layout.add_widget(Label(
+            text="[b]굵게[/b] [i]기울임[/i] [color=ff0000]빨강[/color] [size=20]크게[/size]",
+            font_name=FONT_PATH,
+            markup=True,
+            size_hint=(1, 0.2),
+        ))
 
-            # 기본 라벨
-            label1 = Label(
-                text='기본 라벨',
-                font_name=FONT_PATH,
-                font_size=24,
-                size_hint=(1, 0.2)
-            )
-            layout.add_widget(label1)
+        # 줄바꿈 라벨
+        layout.add_widget(Label(
+            text="이 텍스트는 자동으로 줄바꿈됩니다. 긴 텍스트도 잘 표시됩니다.",
+            font_name=FONT_PATH,
+            font_size=16,
+            text_size=(None, None),
+            halign="center",
+            valign="middle",
+            size_hint=(1, 0.2),
+        ))
 
-            # 마크업 라벨
-            label2 = Label(
-                text='[b]굵게[/b] [i]기울임[/i] [color=ff0000]빨강[/color] [size=20]크게[/size]',
-                font_name=FONT_PATH,
-                markup=True,
-                size_hint=(1, 0.2)
-            )
-            layout.add_widget(label2)
+        # 비동기 이미지 (URL)
+        layout.add_widget(AsyncImage(
+            source="https://kivy.org/logos/kivy_logo_black_256.png",
+            size_hint=(1, 0.4),
+            allow_stretch=True,
+            keep_ratio=True,
+        ))
 
-            # 줄바꿈 라벨
-            label3 = Label(
-                text='이 텍스트는 자동으로 줄바꿈됩니다. 긴 텍스트도 잘 표시됩니다.',
-                font_name=FONT_PATH,
-                font_size=16,
-                text_size=(None, None),
-                halign='center',
-                valign='middle',
-                size_hint=(1, 0.2)
-            )
-            layout.add_widget(label3)
-
-            # 로컬 이미지
-            # img = Image(source='sample.png', allow_stretch=True, keep_ratio=False)
-            # layout.add_widget(img)
-
-            # 비동기 이미지 (URL)
-            async_img = AsyncImage(
-                source='https://kivy.org/logos/kivy_logo_black_256.png',
-                size_hint=(1, 0.4),
-                allow_stretch=True,
-                keep_ratio=True
-            )
-            layout.add_widget(async_img)
-
-            return layout
-
-    MyApp().run()
+        return layout
 
 
 # ==============================================================================
 # 4. 체크박스 & 스위치
 # ==============================================================================
-"""
-[CheckBox]
-  - 체크박스 위젯
-  - active: 체크 상태 (True/False)
-  - group: 같은 그룹 → 하나만 선택 (라디오)
-  - on_active: 상태 변경 이벤트
+class Example4App(App):
+    """CheckBox, Switch 예제"""
 
-[Switch]
-  - iOS 스타일 토글 스위치
-  - active: on/off 상태
-  - on_active: 상태 변경 이벤트
-"""
-def example_4():
-    from kivy.uix.checkbox import CheckBox
-    from kivy.uix.switch import Switch
-    from kivy.uix.gridlayout import GridLayout
+    def build(self):
+        layout = BoxLayout(orientation="vertical", spacing=15, padding=20)
 
-    class MyApp(App):
-        def build(self):
-            layout = BoxLayout(orientation='vertical', spacing=15, padding=20)
+        # 체크박스 (다중 선택)
+        layout.add_widget(Label(
+            text="[ 다중 선택 체크박스 ]",
+            font_name=FONT_PATH, font_size=20, size_hint=(1, 0.1),
+        ))
 
-            # 체크박스 (다중 선택)
-            layout.add_widget(Label(text='[ 다중 선택 체크박스 ]', font_name=FONT_PATH, font_size=20, size_hint=(1, 0.1)))
+        check_layout = GridLayout(cols=2, spacing=5)
+        for item in ["피자", "치킨", "햄버거", "라면"]:
+            row = BoxLayout(spacing=5)
+            cb = CheckBox(active=False)
+            cb.bind(active=lambda inst, val, i=item: print(f"{i}: {val}"))
+            row.add_widget(cb)
+            row.add_widget(Label(text=item, font_name=FONT_PATH, font_size=16))
+            check_layout.add_widget(row)
+        layout.add_widget(check_layout)
 
-            check_layout = GridLayout(cols=2, spacing=5)
-            for item in ['피자', '치킨', '햄버거', '라면']:
-                row = BoxLayout(spacing=5)
-                cb = CheckBox(active=False)
-                cb.bind(active=lambda inst, val, i=item: print(f'{i}: {val}'))
-                row.add_widget(cb)
-                row.add_widget(Label(text=item, font_name=FONT_PATH, font_size=16))
-                check_layout.add_widget(row)
-            layout.add_widget(check_layout)
+        # 체크박스 (라디오 - 하나만 선택)
+        layout.add_widget(Label(
+            text="[ 라디오 체크박스 (하나만) ]",
+            font_name=FONT_PATH, font_size=20, size_hint=(1, 0.1),
+        ))
 
-            # 체크박스 (라디오 - 하나만 선택)
-            layout.add_widget(Label(text='[ 라디오 체크박스 (하나만) ]', font_name=FONT_PATH, font_size=20, size_hint=(1, 0.1)))
+        radio_layout = GridLayout(cols=2, spacing=5)
+        for item in ["남성", "여성"]:
+            row = BoxLayout(spacing=5)
+            cb = CheckBox(group="gender")
+            cb.bind(active=lambda inst, val, i=item: print(f"선택: {i}") if val else None)
+            row.add_widget(cb)
+            row.add_widget(Label(text=item, font_name=FONT_PATH, font_size=16))
+            radio_layout.add_widget(row)
+        layout.add_widget(radio_layout)
 
-            radio_layout = GridLayout(cols=2, spacing=5)
-            for item in ['남성', '여성']:
-                row = BoxLayout(spacing=5)
-                cb = CheckBox(group='gender')  # 같은 그룹
-                cb.bind(active=lambda inst, val, i=item: print(f'선택: {i}') if val else None)
-                row.add_widget(cb)
-                row.add_widget(Label(text=item, font_name=FONT_PATH, font_size=16))
-                radio_layout.add_widget(row)
-            layout.add_widget(radio_layout)
+        # 스위치
+        layout.add_widget(Label(
+            text="[ 스위치 ]",
+            font_name=FONT_PATH, font_size=20, size_hint=(1, 0.1),
+        ))
 
-            # 스위치
-            layout.add_widget(Label(text='[ 스위치 ]', font_name=FONT_PATH, font_size=20, size_hint=(1, 0.1)))
+        switch_layout = BoxLayout(spacing=10)
+        for item in ["WiFi", "블루투스", "비행기모드"]:
+            row = BoxLayout(spacing=5)
+            sw = Switch(active=False)
+            sw.bind(active=lambda inst, val, i=item: print(f"{i}: {'ON' if val else 'OFF'}"))
+            row.add_widget(Label(text=item, font_name=FONT_PATH, font_size=14))
+            row.add_widget(sw)
+            switch_layout.add_widget(row)
+        layout.add_widget(switch_layout)
 
-            switch_layout = BoxLayout(spacing=10)
-            for item in ['WiFi', '블루투스', '비행기모드']:
-                row = BoxLayout(spacing=5)
-                sw = Switch(active=False)
-                sw.bind(active=lambda inst, val, i=item: print(f'{i}: {"ON" if val else "OFF"}'))
-                row.add_widget(Label(text=item, font_name=FONT_PATH, font_size=14))
-                row.add_widget(sw)
-                switch_layout.add_widget(row)
-            layout.add_widget(switch_layout)
-
-            return layout
-
-    MyApp().run()
+        return layout
 
 
 # ==============================================================================
 # 5. 슬라이더 & 프로그레스 바
 # ==============================================================================
-"""
-[Slider]
-  - 값 선택 슬라이더
-  - min / max: 범위
-  - value: 현재 값
-  - orientation: 'horizontal' / 'vertical'
-  - on_value: 값 변경 이벤트
+class Example5App(App):
+    """Slider, ProgressBar 예제"""
 
-[ProgressBar]
-  - 진행률 표시 바
-  - max: 최대값
-  - value: 현재 진행값
-"""
-def example_5():
-    from kivy.uix.slider import Slider
-    from kivy.uix.progressbar import ProgressBar
+    def build(self):
+        layout = BoxLayout(orientation="vertical", spacing=20, padding=20)
 
-    class MyApp(App):
-        def build(self):
-            layout = BoxLayout(orientation='vertical', spacing=20, padding=20)
+        # 슬라이더
+        slider_label = Label(text="볼륨: 50", font_name=FONT_PATH, font_size=20, size_hint=(1, 0.1))
+        layout.add_widget(slider_label)
 
-            # 슬라이더
-            slider_label = Label(text='볼륨: 50', font_name=FONT_PATH, font_size=20, size_hint=(1, 0.1))
-            layout.add_widget(slider_label)
+        slider = Slider(min=0, max=100, value=50, orientation="horizontal", size_hint=(1, 0.2))
 
-            slider = Slider(
-                min=0, max=100, value=50,
-                orientation='horizontal',
-                size_hint=(1, 0.2)
-            )
-            def on_slider(instance, value):
-                slider_label.text = f'볼륨: {int(value)}'
-            slider.bind(value=on_slider)
-            layout.add_widget(slider)
+        def on_slider(instance, value):
+            slider_label.text = f"볼륨: {int(value)}"
 
-            # 수직 슬라이더
-            h_layout = BoxLayout(spacing=20)
-            v_label = Label(text='밝기: 70', font_name=FONT_PATH, font_size=16, size_hint=(0.7, 0.3))
-            v_slider = Slider(min=0, max=100, value=70, orientation='vertical', size_hint=(0.3, 0.3))
-            v_slider.bind(value=lambda inst, v: setattr(v_label, 'text', f'밝기: {int(v)}'))
-            h_layout.add_widget(v_label)
-            h_layout.add_widget(v_slider)
-            layout.add_widget(h_layout)
+        slider.bind(value=on_slider)
+        layout.add_widget(slider)
 
-            # 프로그레스 바
-            pb_label = Label(text='다운로드 진행률', font_name=FONT_PATH, font_size=18, size_hint=(1, 0.1))
-            layout.add_widget(pb_label)
+        # 수직 슬라이더
+        h_layout = BoxLayout(spacing=20)
+        v_label = Label(text="밝기: 70", font_name=FONT_PATH, font_size=16, size_hint=(0.7, 0.3))
+        v_slider = Slider(min=0, max=100, value=70, orientation="vertical", size_hint=(0.3, 0.3))
+        v_slider.bind(value=lambda inst, v: setattr(v_label, "text", f"밝기: {int(v)}"))
+        h_layout.add_widget(v_label)
+        h_layout.add_widget(v_slider)
+        layout.add_widget(h_layout)
 
-            pb = ProgressBar(max=100, value=30, size_hint=(1, 0.15))
-            layout.add_widget(pb)
+        # 프로그레스 바
+        layout.add_widget(Label(text="다운로드 진행률", font_name=FONT_PATH, font_size=18, size_hint=(1, 0.1)))
+        pb = ProgressBar(max=100, value=30, size_hint=(1, 0.15))
+        layout.add_widget(pb)
 
-            # 프로그레스 바 조절 슬라이더
-            ctrl = Slider(min=0, max=100, value=30, size_hint=(1, 0.15))
-            ctrl.bind(value=lambda inst, v: setattr(pb, 'value', v))
-            layout.add_widget(ctrl)
+        # 프로그레스 바 조절 슬라이더
+        ctrl = Slider(min=0, max=100, value=30, size_hint=(1, 0.15))
+        ctrl.bind(value=lambda inst, v: setattr(pb, "value", v))
+        layout.add_widget(ctrl)
 
-            return layout
-
-    MyApp().run()
+        return layout
 
 
 # ==============================================================================
 # 6. 스크롤 뷰
 # ==============================================================================
-"""
-[ScrollView]
-  - 내용이 화면보다 클 때 스크롤 가능
-  - scroll_type: ['content'], ['bars'], ['content', 'bars']
-  - bar_width: 스크롤바 너비
-  - 내부에 반드시 하나의 자식 위젯 필요 (보통 BoxLayout)
-  - size_hint_y=None + 바인딩 필요
-"""
-def example_6():
-    from kivy.uix.scrollview import ScrollView
+class Example6App(App):
+    """ScrollView 예제"""
 
-    class MyApp(App):
-        def build(self):
-            scroll = ScrollView(
-                size_hint=(1, 1),
-                bar_width='10dp',
-                scroll_type=['content', 'bars']
+    def build(self):
+        scroll = ScrollView(
+            size_hint=(1, 1),
+            bar_width="10dp",
+            scroll_type=["content", "bars"],
+        )
+
+        content = BoxLayout(orientation="vertical", spacing=10, padding=10, size_hint_y=None)
+        content.bind(minimum_height=content.setter("height"))
+
+        for i in range(1, 51):
+            btn = Button(
+                text=f"항목 {i}",
+                font_name=FONT_PATH,
+                font_size=16,
+                size_hint=(1, None),
+                height="50dp",
             )
+            btn.bind(on_press=lambda x, n=i: print(f"항목 {n} 클릭"))
+            content.add_widget(btn)
 
-            content = BoxLayout(orientation='vertical', spacing=10, padding=10, size_hint_y=None)
-            content.bind(minimum_height=content.setter('height'))
-
-            for i in range(1, 51):
-                btn = Button(
-                    text=f'항목 {i}',
-                    font_name=FONT_PATH,
-                    font_size=16,
-                    size_hint=(1, None),
-                    height='50dp'
-                )
-                btn.bind(on_press=lambda x, n=i: print(f'항목 {n} 클릭'))
-                content.add_widget(btn)
-
-            scroll.add_widget(content)
-            return scroll
-
-    MyApp().run()
+        scroll.add_widget(content)
+        return scroll
 
 
 # ==============================================================================
-# 7. 레이아웃 (BoxLayout, GridLayout, FloatLayout, AnchorLayout, StackLayout)
+# 7. 레이아웃 모음
 # ==============================================================================
-"""
-[BoxLayout]
-  - 자식 위젯을 가로/세로로 나열
-  - orientation: 'horizontal' / 'vertical'
-  - spacing: 자식 간 간격
-  - padding: 내부 여백
+class Example7App(App):
+    """BoxLayout, GridLayout, FloatLayout, AnchorLayout, StackLayout 예제"""
 
-[GridLayout]
-  - 격자(그리드) 배치
-  - cols / rows: 열/행 수
-  - 자동으로 균등 분할
+    def build(self):
+        panel = TabbedPanel()
 
-[FloatLayout]
-  - 절대 좌표(pos) + 상대 크기(size_hint)로 자유 배치
-  - 자식의 pos_hint로 상대 위치 지정 가능
+        # ── BoxLayout 탭 ──
+        tab1 = TabbedPanelItem(text="BoxLayout")
+        box = BoxLayout(orientation="vertical", spacing=5, padding=10)
+        box.add_widget(Label(text="세로 BoxLayout", font_name=FONT_PATH, font_size=16))
+        h_box = BoxLayout(spacing=5)
+        for c, color in [("A", (1, .3, .3, 1)), ("B", (.3, 1, .3, 1)), ("C", (.3, .3, 1, 1))]:
+            h_box.add_widget(Button(text=c, background_color=color))
+        box.add_widget(h_box)
+        tab1.add_widget(box)
+        panel.add_widget(tab1)
 
-[AnchorLayout]
-  - 자식을 특정 위치(anchor)에 고정
-  - anchor_x: 'left', 'center', 'right'
-  - anchor_y: 'top', 'center', 'bottom'
+        # ── GridLayout 탭 ──
+        tab2 = TabbedPanelItem(text="GridLayout")
+        grid = GridLayout(cols=3, spacing=5, padding=10)
+        for i in range(1, 10):
+            grid.add_widget(Button(text=str(i), font_size=24))
+        tab2.add_widget(grid)
+        panel.add_widget(tab2)
 
-[StackLayout]
-  - 위젯을 스택(흐름) 배치
-  - orientation: 'lr-tb', 'tb-lr' 등
-  - 자동 줄바꿈
-"""
-def example_7():
-    from kivy.uix.gridlayout import GridLayout
-    from kivy.uix.floatlayout import FloatLayout
-    from kivy.uix.anchorlayout import AnchorLayout
-    from kivy.uix.stacklayout import StackLayout
+        # ── FloatLayout 탭 ──
+        tab3 = TabbedPanelItem(text="FloatLayout")
+        fl = FloatLayout()
+        fl.add_widget(Button(text="좌상", pos_hint={"x": 0.05, "top": 0.95}, size_hint=(0.3, 0.2)))
+        fl.add_widget(Button(text="중앙", pos_hint={"center_x": 0.5, "center_y": 0.5}, size_hint=(0.3, 0.2)))
+        fl.add_widget(Button(text="우하", pos_hint={"right": 0.95, "y": 0.05}, size_hint=(0.3, 0.2)))
+        tab3.add_widget(fl)
+        panel.add_widget(tab3)
 
-    class MyApp(App):
-        def build(self):
-            from kivy.uix.tabbedpanel import TabbedPanel, TabbedPanelItem
+        # ── AnchorLayout 탭 ──
+        tab4 = TabbedPanelItem(text="AnchorLayout")
+        al = AnchorLayout(anchor_x="center", anchor_y="top")
+        al.add_widget(Button(text="상단 중앙", size_hint=(0.5, 0.2)))
+        tab4.add_widget(al)
+        panel.add_widget(tab4)
 
-            panel = TabbedPanel()
+        # ── StackLayout 탭 ──
+        tab5 = TabbedPanelItem(text="StackLayout")
+        stack = StackLayout(orientation="lr-tb", spacing=5, padding=10)
+        for i in range(1, 21):
+            stack.add_widget(Button(text=str(i), size_hint=(0.2, 0.15)))
+        tab5.add_widget(stack)
+        panel.add_widget(tab5)
 
-            # --- BoxLayout 탭 ---
-            tab1 = TabbedPanelItem(text='BoxLayout')
-            box = BoxLayout(orientation='vertical', spacing=5, padding=10)
-            box.add_widget(Label(text='세로 BoxLayout', font_name=FONT_PATH, font_size=16))
-            h_box = BoxLayout(spacing=5)
-            for c, color in [('A', (1,.3,.3,1)), ('B', (.3,1,.3,1)), ('C', (.3,.3,1,1))]:
-                h_box.add_widget(Button(text=c, background_color=color))
-            box.add_widget(h_box)
-            tab1.add_widget(box)
-            panel.add_widget(tab1)
-
-            # --- GridLayout 탭 ---
-            tab2 = TabbedPanelItem(text='GridLayout')
-            grid = GridLayout(cols=3, spacing=5, padding=10)
-            for i in range(1, 10):
-                grid.add_widget(Button(text=str(i), font_size=24))
-            tab2.add_widget(grid)
-            panel.add_widget(tab2)
-
-            # --- FloatLayout 탭 ---
-            tab3 = TabbedPanelItem(text='FloatLayout')
-            fl = FloatLayout()
-            btn1 = Button(text='좌상', pos_hint={'x': 0.05, 'top': 0.95}, size_hint=(0.3, 0.2))
-            btn2 = Button(text='중앙', pos_hint={'center_x': 0.5, 'center_y': 0.5}, size_hint=(0.3, 0.2))
-            btn3 = Button(text='우하', pos_hint={'right': 0.95, 'y': 0.05}, size_hint=(0.3, 0.2))
-            fl.add_widget(btn1)
-            fl.add_widget(btn2)
-            fl.add_widget(btn3)
-            tab3.add_widget(fl)
-            panel.add_widget(tab3)
-
-            # --- AnchorLayout 탭 ---
-            tab4 = TabbedPanelItem(text='AnchorLayout')
-            al_top = AnchorLayout(anchor_x='center', anchor_y='top')
-            al_top.add_widget(Button(text='상단 중앙', size_hint=(0.5, 0.2)))
-            tab4.add_widget(al_top)
-            panel.add_widget(tab4)
-
-            # --- StackLayout 탭 ---
-            tab5 = TabbedPanelItem(text='StackLayout')
-            stack = StackLayout(orientation='lr-tb', spacing=5, padding=10)
-            for i in range(1, 21):
-                stack.add_widget(Button(text=str(i), size_hint=(0.2, 0.15)))
-            tab5.add_widget(stack)
-            panel.add_widget(tab5)
-
-            return panel
-
-    MyApp().run()
+        return panel
 
 
 # ==============================================================================
 # 8. 탭 패널
 # ==============================================================================
-"""
-[TabbedPanel]
-  - 탭으로 여러 페이지 전환
-  - tab_pos: 탭 위치 ('top_left', 'top_mid', 'top_right',
-             'bottom_left', 'bottom_mid', 'bottom_right',
-             'left_top', 'left_mid', 'left_bottom',
-             'right_top', 'right_mid', 'right_bottom')
-  - TabbedPanelItem: 각 탭의 내용
-"""
-def example_8():
-    from kivy.uix.tabbedpanel import TabbedPanel, TabbedPanelItem
+class Example8App(App):
+    """TabbedPanel, TabbedPanelItem 예제"""
 
-    class MyApp(App):
-        def build(self):
-            panel = TabbedPanel(tab_pos='top_left', tab_height='40dp')
+    def build(self):
+        panel = TabbedPanel(tab_pos="top_left", tab_height="40dp")
 
-            tabs = [
-                ('홈', '🏠 홈 화면입니다'),
-                ('검색', '🔍 검색 화면입니다'),
-                ('설정', '⚙️ 설정 화면입니다'),
-                ('프로필', '👤 프로필 화면입니다'),
-            ]
+        tabs = [
+            ("홈", "🏠 홈 화면입니다"),
+            ("검색", "🔍 검색 화면입니다"),
+            ("설정", "⚙️ 설정 화면입니다"),
+            ("프로필", "👤 프로필 화면입니다"),
+        ]
 
-            for title, content in tabs:
-                tab = TabbedPanelItem(text=title)
-                tab.add_widget(Label(
-                    text=content,
-                    font_name=FONT_PATH,
-                    font_size=22,
-                    halign='center',
-                    valign='middle'
-                ))
-                panel.add_widget(tab)
+        for title, content in tabs:
+            tab = TabbedPanelItem(text=title)
+            tab.add_widget(Label(
+                text=content,
+                font_name=FONT_PATH,
+                font_size=22,
+                halign="center",
+                valign="middle",
+            ))
+            panel.add_widget(tab)
 
-            return panel
-
-    MyApp().run()
+        return panel
 
 
 # ==============================================================================
 # 9. 팝업 & 모달뷰
 # ==============================================================================
-"""
-[Popup]
-  - 팝업 대화상자
-  - title: 제목
-  - content: 내용 위젯
-  - size_hint: 크기 비율
-  - auto_dismiss: 외부 클릭 시 닫기 여부
-  - on_open / on_dismiss: 열기/닫기 이벤트
+class Example9App(App):
+    """Popup, ModalView 예제"""
 
-[ModalView]
-  - 모달 오버레이 뷰
-  0 팝업보다 자유로운 커스터마이징
-  - auto_dismiss: 배경 클릭 시 닫기
-"""
-def example_9():
-    from kivy.uix.popup import Popup
-    from kivy.uix.modalview import ModalView
+    def build(self):
+        layout = BoxLayout(orientation="vertical", spacing=15, padding=20)
 
-    class MyApp(App):
-        def build(self):
-            layout = BoxLayout(orientation='vertical', spacing=15, padding=20)
+        # 팝업 버튼
+        popup_btn = Button(text="팝업 열기", font_name=FONT_PATH, font_size=20, size_hint=(1, 0.3))
 
-            # 팝업 버튼
-            popup_btn = Button(
-                text='팝업 열기',
-                font_name=FONT_PATH,
-                font_size=20,
-                size_hint=(1, 0.3)
+        def show_popup(instance):
+            content = BoxLayout(orientation="vertical", spacing=10, padding=10)
+            content.add_widget(Label(text="이것은 팝업입니다!", font_name=FONT_PATH, font_size=18))
+            close_btn = Button(text="닫기", font_name=FONT_PATH, size_hint=(1, 0.3))
+            content.add_widget(close_btn)
+            popup = Popup(
+                title="알림",
+                title_font=FONT_PATH,
+                content=content,
+                size_hint=(0.7, 0.4),
+                auto_dismiss=True,
             )
+            close_btn.bind(on_press=popup.dismiss)
+            popup.open()
 
-            def show_popup(instance):
-                content = BoxLayout(orientation='vertical', spacing=10, padding=10)
-                content.add_widget(Label(text='이것은 팝업입니다!', font_name=FONT_PATH, font_size=18))
-                close_btn = Button(text='닫기', font_name=FONT_PATH, size_hint=(1, 0.3))
-                content.add_widget(close_btn)
+        popup_btn.bind(on_press=show_popup)
+        layout.add_widget(popup_btn)
 
-                popup = Popup(
-                    title='알림',
-                    title_font=FONT_PATH,
-                    content=content,
-                    size_hint=(0.7, 0.4),
-                    auto_dismiss=True
-                )
-                close_btn.bind(on_press=popup.dismiss)
-                popup.open()
+        # 모달뷰 버튼
+        modal_btn = Button(text="모달뷰 열기", font_name=FONT_PATH, font_size=20, size_hint=(1, 0.3))
 
-            popup_btn.bind(on_press=show_popup)
-            layout.add_widget(popup_btn)
+        def show_modal(instance):
+            modal = ModalView(size_hint=(0.8, 0.5), auto_dismiss=True)
+            inner = BoxLayout(orientation="vertical", spacing=10, padding=10)
+            inner.add_widget(Label(text="모달뷰 내용", font_name=FONT_PATH, font_size=20))
+            inner.add_widget(Label(text="배경을 클릭하면 닫힙니다", font_name=FONT_PATH, font_size=14))
+            modal.add_widget(inner)
+            modal.open()
 
-            # 모달뷰 버튼
-            modal_btn = Button(
-                text='모달뷰 열기',
-                font_name=FONT_PATH,
-                font_size=20,
-                size_hint=(1, 0.3)
-            )
+        modal_btn.bind(on_press=show_modal)
+        layout.add_widget(modal_btn)
 
-            def show_modal(instance):
-                modal = ModalView(size_hint=(0.8, 0.5), auto_dismiss=True)
-                inner = BoxLayout(orientation='vertical', spacing=10, padding=10)
-                inner.add_widget(Label(text='모달뷰 내용', font_name=FONT_PATH, font_size=20))
-                inner.add_widget(Label(text='배경을 클릭하면 닫힙니다', font_name=FONT_PATH, font_size=14))
-                modal.add_widget(inner)
-                modal.open()
+        # 확인/취소 팝업
+        confirm_btn = Button(text="확인 팝업", font_name=FONT_PATH, font_size=20, size_hint=(1, 0.3))
 
-            modal_btn.bind(on_press=show_modal)
-            layout.add_widget(modal_btn)
+        def show_confirm(instance):
+            content = BoxLayout(orientation="vertical", spacing=10)
+            content.add_widget(Label(text="정말 삭제하시겠습니까?", font_name=FONT_PATH, font_size=18))
+            btn_row = BoxLayout(spacing=10)
+            yes = Button(text="예", font_name=FONT_PATH, background_color=(1, 0.3, 0.3, 1))
+            no = Button(text="아니오", font_name=FONT_PATH)
+            btn_row.add_widget(yes)
+            btn_row.add_widget(no)
+            content.add_widget(btn_row)
 
-            # 확인/취소 팝업
-            confirm_btn = Button(
-                text='확인 팝업',
-                font_name=FONT_PATH,
-                font_size=20,
-                size_hint=(1, 0.3)
-            )
+            popup = Popup(title="확인", title_font=FONT_PATH, content=content, size_hint=(0.7, 0.35))
+            yes.bind(on_press=lambda x: (print("삭제 실행!"), popup.dismiss()))
+            no.bind(on_press=popup.dismiss)
+            popup.open()
 
-            def show_confirm(instance):
-                content = BoxLayout(orientation='vertical', spacing=10)
-                content.add_widget(Label(text='정말 삭제하시겠습니까?', font_name=FONT_PATH, font_size=18))
-                btn_row = BoxLayout(spacing=10)
-                yes = Button(text='예', font_name=FONT_PATH, background_color=(1, 0.3, 0.3, 1))
-                no = Button(text='아니오', font_name=FONT_PATH)
-                btn_row.add_widget(yes)
-                btn_row.add_widget(no)
-                content.add_widget(btn_row)
+        confirm_btn.bind(on_press=show_confirm)
+        layout.add_widget(confirm_btn)
 
-                popup = Popup(title='확인', title_font=FONT_PATH, content=content, size_hint=(0.7, 0.35))
-                yes.bind(on_press=lambda x: print('삭제 실행!') or popup.dismiss())
-                no.bind(on_press=popup.dismiss)
-                popup.open()
-
-            confirm_btn.bind(on_press=show_confirm)
-            layout.add_widget(confirm_btn)
-
-            return layout
-
-    MyApp().run()
+        return layout
 
 
 # ==============================================================================
 # 10. 스피너 (드롭다운 선택)
 # ==============================================================================
-"""
-[Spinner]
-  - 드롭다운 목록 선택 위젯
-  - values: 선택 가능한 항목 목록
-  - text: 현재 선택된 텍스트
-  - on_text: 선택 변경 이벤트
-"""
-def example_10():
-    from kivy.uix.spinner import Spinner
+class Example10App(App):
+    """Spinner 예제"""
 
-    class MyApp(App):
-        def build(self):
-            layout = BoxLayout(orientation='vertical', spacing=15, padding=20)
+    def build(self):
+        layout = BoxLayout(orientation="vertical", spacing=15, padding=20)
 
-            # 기본 스피너
-            spinner_label = Label(text='선택된 항목: 없음', font_name=FONT_PATH, font_size=18, size_hint=(1, 0.15))
-            layout.add_widget(spinner_label)
+        # 기본 스피너
+        spinner_label = Label(text="선택된 항목: 없음", font_name=FONT_PATH, font_size=18, size_hint=(1, 0.15))
+        layout.add_widget(spinner_label)
 
-            spinner = Spinner(
-                text='선택하세요',
-                values=('서울', '부산', '대구', '인천', '광주', '대전', '울산'),
-                font_name=FONT_PATH,
-                font_size=18,
-                size_hint=(1, 0.2),
-                background_color=(0.3, 0.5, 0.8, 1)
-            )
-            spinner.bind(text=lambda inst, val: setattr(spinner_label, 'text', f'선택된 항목: {val}'))
-            layout.add_widget(spinner)
+        spinner = Spinner(
+            text="선택하세요",
+            values=("서울", "부산", "대구", "인천", "광주", "대전", "울산"),
+            font_name=FONT_PATH,
+            font_size=18,
+            size_hint=(1, 0.2),
+            background_color=(0.3, 0.5, 0.8, 1),
+        )
 
-            # 숫자 스피너
-            num_label = Label(text='인원 수: 1', font_name=FONT_PATH, font_size=18, size_hint=(1, 0.15))
-            layout.add_widget(num_label)
+        def on_spinner_text(inst, val):
+            spinner_label.text = f"선택된 항목: {val}"
 
-            num_spinner = Spinner(
-                text='1',
-                values=tuple(str(i) for i in range(1, 11)),
-                font_name=FONT_PATH,
-                font_size=18,
-                size_hint=(1, 0.2)
-            )
-            num_spinner.bind(text=lambda inst, val: setattr(num_label, 'text', f'인원 수: {val}'))
-            layout.add_widget(num_spinner)
+        spinner.bind(text=on_spinner_text)
+        layout.add_widget(spinner)
 
-            return layout
+        # 숫자 스피너
+        num_label = Label(text="인원 수: 1", font_name=FONT_PATH, font_size=18, size_hint=(1, 0.15))
+        layout.add_widget(num_label)
 
-    MyApp().run()
+        num_spinner = Spinner(
+            text="1",
+            values=tuple(str(i) for i in range(1, 11)),
+            font_name=FONT_PATH,
+            font_size=18,
+            size_hint=(1, 0.2),
+        )
+
+        def on_num_text(inst, val):
+            num_label.text = f"인원 수: {val}"
+
+        num_spinner.bind(text=on_num_text)
+        layout.add_widget(num_spinner)
+
+        return layout
 
 
 # ==============================================================================
 # 11. 드롭다운 메뉴
 # ==============================================================================
-"""
-[DropDown]
-  - 커스텀 드롭다운 메뉴
-  - 버튼 등에 바인딩하여 사용
-  - open() / dismiss()로 열기/닫기
-"""
-def example_11():
-    from kivy.uix.dropdown import DropDown
+class Example11App(App):
+    """DropDown 예제"""
 
-    class MyApp(App):
-        def build(self):
-            layout = BoxLayout(orientation='vertical', spacing=20, padding=20)
+    def build(self):
+        layout = BoxLayout(orientation="vertical", spacing=20, padding=20)
 
-            # 드롭다운 생성
-            dropdown = DropDown()
-            items = ['새로 만들기', '열기', '저장', '다른 이름으로 저장', '인쇄']
-            for item in items:
-                btn = Button(
-                    text=item,
-                    font_name=FONT_PATH,
-                    font_size=14,
-                    size_hint_y=None,
-                    height='40dp'
-                )
-                btn.bind(on_release=lambda x, i=item: dropdown.select(i))
-                dropdown.add_widget(btn)
+        # 드롭다운 생성
+        dropdown = DropDown()
+        items = ["새로 만들기", "열기", "저장", "다른 이름으로 저장", "인쇄"]
+        for item in items:
+            btn = Button(text=item, font_name=FONT_PATH, font_size=14, size_hint_y=None, height="40dp")
+            btn.bind(on_release=lambda x, i=item: dropdown.select(i))
+            dropdown.add_widget(btn)
 
-            # 메인 버튼
-            main_btn = Button(
-                text='파일 메뉴 ▼',
-                font_name=FONT_PATH,
-                font_size=18,
-                size_hint=(1, 0.3)
-            )
-            main_btn.bind(on_release=dropdown.open)
+        # 메인 버튼
+        main_btn = Button(text="파일 메뉴 ▼", font_name=FONT_PATH, font_size=18, size_hint=(1, 0.3))
+        main_btn.bind(on_release=dropdown.open)
 
-            # 선택 결과
-            result_label = Label(text='선택: 없음', font_name=FONT_PATH, font_size=18, size_hint=(1, 0.2))
+        # 선택 결과
+        result_label = Label(text="선택: 없음", font_name=FONT_PATH, font_size=18, size_hint=(1, 0.2))
 
-            def on_select(instance, data):
-                main_btn.text = data
-                result_label.text = f'선택: {data}'
+        def on_select(instance, data):
+            main_btn.text = data
+            result_label.text = f"선택: {data}"
 
-            dropdown.bind(on_select=on_select)
+        dropdown.bind(on_select=on_select)
 
-            layout.add_widget(main_btn)
-            layout.add_widget(result_label)
-            return layout
-
-    MyApp().run()
+        layout.add_widget(main_btn)
+        layout.add_widget(result_label)
+        return layout
 
 
 # ==============================================================================
 # 12. 액션 바
 # ==============================================================================
-"""
-[ActionBar]
-  - 안드로이드 스타일 액션 바
-  - ActionView: 액션 바 내용
-  - ActionPrevious: 뒤로가기 버튼
-  - ActionButton: 액션 버튼
-  - ActionOverflow: 오버플로우 메뉴
-  - ActionGroup: 액션 그룹
-"""
-def example_12():
-    from kivy.uix.actionbar import (
-        ActionBar, ActionView, ActionPrevious,
-        ActionButton, ActionOverflow, ActionGroup
-    )
+class Example12App(App):
+    """ActionBar, ActionView, ActionPrevious, ActionButton, ActionOverflow, ActionGroup 예제"""
 
-    class MyApp(App):
-        def build(self):
-            layout = BoxLayout(orientation='vertical')
+    def build(self):
+        layout = BoxLayout(orientation="vertical")
 
-            # 액션 바
-            action_bar = ActionBar(pos_hint={'top': 1})
-            action_view = ActionView()
-            action_view.add_widget(ActionPrevious(
-                title='내 앱',
-                with_previous=False,
-                app_icon=''
+        # 액션 바
+        action_bar = ActionBar(pos_hint={"top": 1})
+        action_view = ActionView()
+        action_view.add_widget(ActionPrevious(
+            title="내 앱",
+            with_previous=False,
+            app_icon="",
+        ))
+
+        # 액션 버튼들
+        for name in ["검색", "추가", "편집"]:
+            action_view.add_widget(ActionButton(
+                text=name,
+                important=True,
+                on_press=lambda x, n=name: print(f"{n} 클릭"),
             ))
 
-            # 액션 버튼들
-            for name in ['검색', '추가', '편집']:
-                action_view.add_widget(ActionButton(
-                    text=name,
-                    important=True,
-                    on_press=lambda x, n=name: print(f'{n} 클릭')
-                ))
+        # 오버플로우 (더 보기 메뉴)
+        overflow = ActionOverflow()
+        overflow.add_widget(ActionButton(text="설정", on_press=lambda x: print("설정")))
+        overflow.add_widget(ActionButton(text="도움말", on_press=lambda x: print("도움말")))
+        overflow.add_widget(ActionButton(text="정보", on_press=lambda x: print("정보")))
+        action_view.add_widget(overflow)
 
-            # 오버플로우 (더 보기 메뉴)
-            overflow = ActionOverflow()
-            overflow.add_widget(ActionButton(text='설정', on_press=lambda x: print('설정')))
-            overflow.add_widget(ActionButton(text='도움말', on_press=lambda x: print('도움말')))
-            overflow.add_widget(ActionButton(text='정보', on_press=lambda x: print('정보')))
-            action_view.add_widget(overflow)
-
-            # 액션 그룹
-            group = ActionGroup(text='공유')
-            for name in ['이메일', '카카오톡', '문자']:
-                group.add_widget(ActionButton(
-                    text=name,
-                    on_press=lambda x, n=name: print(f'공유: {n}')
-                ))
-            action_view.add_widget(group)
-
-            action_bar.add_widget(action_view)
-            layout.add_widget(action_bar)
-
-            # 본문
-            layout.add_widget(Label(
-                text='액션 바 예제',
-                font_name=FONT_PATH,
-                font_size=24
+        # 액션 그룹
+        group = ActionGroup(text="공유")
+        for name in ["이메일", "카카오톡", "문자"]:
+            group.add_widget(ActionButton(
+                text=name,
+                on_press=lambda x, n=name: print(f"공유: {n}"),
             ))
+        action_view.add_widget(group)
 
-            return layout
+        action_bar.add_widget(action_view)
+        layout.add_widget(action_bar)
 
-    MyApp().run()
+        # 본문
+        layout.add_widget(Label(text="액션 바 예제", font_name=FONT_PATH, font_size=24))
+
+        return layout
 
 
 # ==============================================================================
 # 13. 캐러셀 (슬라이드 뷰)
 # ==============================================================================
-"""
-[Carousel]
-  - 스와이프로 페이지 전환
-  - direction: 스와이프 방향 ('left', 'right', 'top', 'bottom')
-  - loop: 무한 루프 여부
-  - anim_move_duration: 전환 애니메이션 시간
-  - on_slide_change: 슬라이드 변경 이벤트
-"""
-def example_13():
-    from kivy.uix.carousel import Carousel
+class Example13App(App):
+    """Carousel 예제"""
 
-    class MyApp(App):
-        def build(self):
-            carousel = Carousel(direction='right', loop=True)
+    def build(self):
+        carousel = Carousel(direction="right", loop=True)
 
-            colors = [
-                ('빨강 페이지', (1, 0.3, 0.3, 1)),
-                ('초록 페이지', (0.3, 1, 0.3, 1)),
-                ('파랑 페이지', (0.3, 0.3, 1, 1)),
-                ('노랑 페이지', (1, 1, 0.3, 1)),
-                ('보라 페이지', (0.7, 0.3, 1, 1)),
-            ]
+        colors = [
+            ("빨강 페이지", (1, 0.3, 0.3, 1)),
+            ("초록 페이지", (0.3, 1, 0.3, 1)),
+            ("파랑 페이지", (0.3, 0.3, 1, 1)),
+            ("노랑 페이지", (1, 1, 0.3, 1)),
+            ("보라 페이지", (0.7, 0.3, 1, 1)),
+        ]
 
-            for title, color in colors:
-                slide = BoxLayout(orientation='vertical', padding=20)
-                slide.add_widget(Label(
-                    text=title,
-                    font_name=FONT_PATH,
-                    font_size=32,
-                    color=(0, 0, 0, 1)
-                ))
-                slide.add_widget(Label(
-                    text='← 스와이프 →',
-                    font_name=FONT_PATH,
-                    font_size=18,
-                    color=(0, 0, 0, 1)
-                ))
-                # 배경색은 canvas로 설정
-                from kivy.graphics import Color, Rectangle
-                with slide.canvas.before:
-                    Color(*color)
-                    self_rect = Rectangle(pos=slide.pos, size=slide.size)
-                    slide.bind(pos=lambda i, v, r=self_rect: setattr(r, 'pos', v),
-                              size=lambda i, v, r=self_rect: setattr(r, 'size', v))
-                carousel.add_widget(slide)
+        for title, color in colors:
+            slide = BoxLayout(orientation="vertical", padding=20)
+            slide.add_widget(Label(text=title, font_name=FONT_PATH, font_size=32, color=(0, 0, 0, 1)))
+            slide.add_widget(Label(text="← 스와이프 →", font_name=FONT_PATH, font_size=18, color=(0, 0, 0, 1)))
 
-            return carousel
+            # 배경색 canvas 설정
+            with slide.canvas.before:
+                GfxColor(*color)
+                rect = Rectangle(pos=slide.pos, size=slide.size)
+                slide.bind(
+                    pos=lambda inst, v, r=rect: setattr(r, "pos", v),
+                    size=lambda inst, v, r=rect: setattr(r, "size", v),
+                )
+            carousel.add_widget(slide)
 
-    MyApp().run()
+        return carousel
 
 
 # ==============================================================================
-# 14. 화면 관리자 (Screen Manager)
+# 14. 화면 관리자 (ScreenManager)
 # ==============================================================================
-"""
-[ScreenManager]
-  - 여러 화면(Screen) 간 전환
-  - transition: 전환 효과 (SlideTransition, FadeTransition 등)
-  - current: 현재 화면 이름
-  - switch_to() / current = 'screen_name' 으로 전환
+class Example14App(App):
+    """ScreenManager, Screen, SlideTransition 예제"""
 
-[Screen]
-  - 개별 화면 단위
-  - name: 화면 식별 이름
-"""
-def example_14():
-    from kivy.uix.screenmanager import (
-        ScreenManager, Screen, SlideTransition,
-        FadeTransition, WipeTransition
-    )
+    def build(self):
+        sm = ScreenManager(transition=SlideTransition())
 
-    class MyApp(App):
-        def build(self):
-            sm = ScreenManager(transition=SlideTransition())
+        # 화면 1 - 로그인
+        screen1 = Screen(name="login")
+        s1_layout = BoxLayout(orientation="vertical", spacing=15, padding=30)
+        s1_layout.add_widget(Label(text="로그인 화면", font_name=FONT_PATH, font_size=28, size_hint=(1, 0.3)))
+        s1_layout.add_widget(TextInput(hint_text="아이디", multiline=False, size_hint=(1, 0.15)))
+        s1_layout.add_widget(TextInput(hint_text="비밀번호", password=True, multiline=False, size_hint=(1, 0.15)))
+        go_main = Button(text="로그인 →", font_name=FONT_PATH, size_hint=(1, 0.2))
+        go_main.bind(on_press=lambda x: setattr(sm, "current", "main"))
+        s1_layout.add_widget(go_main)
+        screen1.add_widget(s1_layout)
+        sm.add_widget(screen1)
 
-            # 화면 1 - 로그인
-            screen1 = Screen(name='login')
-            s1_layout = BoxLayout(orientation='vertical', spacing=15, padding=30)
-            s1_layout.add_widget(Label(text='로그인 화면', font_name=FONT_PATH, font_size=28, size_hint=(1, 0.3)))
-            from kivy.uix.textinput import TextInput
-            s1_layout.add_widget(TextInput(hint_text='아이디', multiline=False, size_hint=(1, 0.15)))
-            s1_layout.add_widget(TextInput(hint_text='비밀번호', password=True, multiline=False, size_hint=(1, 0.15)))
-            go_main = Button(text='로그인 →', font_name=FONT_PATH, size_hint=(1, 0.2))
-            go_main.bind(on_press=lambda x: setattr(sm, 'current', 'main'))
-            s1_layout.add_widget(go_main)
-            screen1.add_widget(s1_layout)
-            sm.add_widget(screen1)
+        # 화면 2 - 메인
+        screen2 = Screen(name="main")
+        s2_layout = BoxLayout(orientation="vertical", spacing=15, padding=30)
+        s2_layout.add_widget(Label(text="메인 화면", font_name=FONT_PATH, font_size=28, size_hint=(1, 0.2)))
+        s2_layout.add_widget(Label(text="환영합니다!", font_name=FONT_PATH, font_size=20, size_hint=(1, 0.2)))
+        btn_row = BoxLayout(spacing=10)
+        go_setting = Button(text="설정 →", font_name=FONT_PATH)
+        go_setting.bind(on_press=lambda x: setattr(sm, "current", "settings"))
+        go_back = Button(text="← 로그인", font_name=FONT_PATH)
+        go_back.bind(on_press=lambda x: setattr(sm, "current", "login"))
+        btn_row.add_widget(go_setting)
+        btn_row.add_widget(go_back)
+        s2_layout.add_widget(btn_row)
+        screen2.add_widget(s2_layout)
+        sm.add_widget(screen2)
 
-            # 화면 2 - 메인
-            screen2 = Screen(name='main')
-            s2_layout = BoxLayout(orientation='vertical', spacing=15, padding=30)
-            s2_layout.add_widget(Label(text='메인 화면', font_name=FONT_PATH, font_size=28, size_hint=(1, 0.2)))
-            s2_layout.add_widget(Label(text='환영합니다!', font_name=FONT_PATH, font_size=20, size_hint=(1, 0.2)))
+        # 화면 3 - 설정
+        screen3 = Screen(name="settings")
+        s3_layout = BoxLayout(orientation="vertical", spacing=15, padding=30)
+        s3_layout.add_widget(Label(text="설정 화면", font_name=FONT_PATH, font_size=28, size_hint=(1, 0.3)))
+        go_back2 = Button(text="← 메인", font_name=FONT_PATH, size_hint=(1, 0.2))
+        go_back2.bind(on_press=lambda x: setattr(sm, "current", "main"))
+        s3_layout.add_widget(go_back2)
+        screen3.add_widget(s3_layout)
+        sm.add_widget(screen3)
 
-            btn_row = BoxLayout(spacing=10)
-            go_setting = Button(text='설정 →', font_name=FONT_PATH)
-            go_setting.bind(on_press=lambda x: setattr(sm, 'current', 'settings'))
-            go_back = Button(text='← 로그인', font_name=FONT_PATH)
-            go_back.bind(on_press=lambda x: setattr(sm, 'current', 'login'))
-            btn_row.add_widget(go_setting)
-            btn_row.add_widget(go_back)
-            s2_layout.add_widget(btn_row)
-            screen2.add_widget(s2_layout)
-            sm.add_widget(screen2)
-
-            # 화면 3 - 설정
-            screen3 = Screen(name='settings')
-            s3_layout = BoxLayout(orientation='vertical', spacing=15, padding=30)
-            s3_layout.add_widget(Label(text='설정 화면', font_name=FONT_PATH, font_size=28, size_hint=(1, 0.3)))
-            go_back2 = Button(text='← 메인', font_name=FONT_PATH, size_hint=(1, 0.2))
-            go_back2.bind(on_press=lambda x: setattr(sm, 'current', 'main'))
-            s3_layout.add_widget(go_back2)
-            screen3.add_widget(s3_layout)
-            sm.add_widget(screen3)
-
-            return sm
-
-    MyApp().run()
+        return sm
 
 
 # ==============================================================================
 # 15. 파일 선택기
 # ==============================================================================
-"""
-[FileChooserIconView]
-  - 아이콘 형태 파일 선택기
+class Example15App(App):
+    """FileChooserIconView, FileChooserListView 예제"""
 
-[FileChooserListView]
-  - 리스트 형태 파일 선택기
+    def build(self):
+        layout = BoxLayout(orientation="vertical", spacing=10, padding=10)
 
-공통 속성:
-  - path: 현재 경로
-  - filters: 파일 필터 (예: ['*.png', '*.jpg'])
-  - on_selection: 파일 선택 이벤트
-  - multiselect: 다중 선택 여부
-"""
-def example_15():
-    from kivy.uix.filechooser import FileChooserIconView, FileChooserListView
-    from kivy.uix.tabbedpanel import TabbedPanel, TabbedPanelItem
+        path_label = Label(text="선택된 파일: 없음", font_name=FONT_PATH, font_size=14, size_hint=(1, 0.1))
+        layout.add_widget(path_label)
 
-    class MyApp(App):
-        def build(self):
-            layout = BoxLayout(orientation='vertical', spacing=10, padding=10)
+        panel = TabbedPanel()
 
-            # 파일 경로 라벨
-            path_label = Label(
-                text='선택된 파일: 없음',
-                font_name=FONT_PATH,
-                font_size=14,
-                size_hint=(1, 0.1)
-            )
-            layout.add_widget(path_label)
+        # 아이콘 뷰
+        tab_icon = TabbedPanelItem(text="아이콘 뷰")
+        icon_view = FileChooserIconView(path=".", filters=["*.py", "*.txt", "*.png", "*.jpg"])
 
-            # 탭으로 아이콘/리스트 전환
-            panel = TabbedPanel()
+        def on_icon_select(inst, sel):
+            path_label.text = f"선택: {sel[0]}" if sel else "선택된 파일: 없음"
 
-            # 아이콘 뷰
-            tab_icon = TabbedPanelItem(text='아이콘 뷰')
-            icon_view = FileChooserIconView(
-                path='.',
-                filters=['*.py', '*.txt', '*.png', '*.jpg'],
-                size_hint=(1, 1)
-            )
-            icon_view.bind(selection=lambda inst, sel: setattr(
-                path_label, 'text', f'선택: {sel[0]}' if sel else '선택된 파일: 없음'
-            ))
-            tab_icon.add_widget(icon_view)
-            panel.add_widget(tab_icon)
+        icon_view.bind(selection=on_icon_select)
+        tab_icon.add_widget(icon_view)
+        panel.add_widget(tab_icon)
 
-            # 리스트 뷰
-            tab_list = TabbedPanelItem(text='리스트 뷰')
-            list_view = FileChooserListView(
-                path='.',
-                size_hint=(1, 1)
-            )
-            list_view.bind(selection=lambda inst, sel: setattr(
-                path_label, 'text', f'선택: {sel[0]}' if sel else '선택된 파일: 없음'
-            ))
-            tab_list.add_widget(list_view)
-            panel.add_widget(tab_list)
+        # 리스트 뷰
+        tab_list = TabbedPanelItem(text="리스트 뷰")
+        list_view = FileChooserListView(path=".")
 
-            layout.add_widget(panel)
-            return layout
+        def on_list_select(inst, sel):
+            path_label.text = f"선택: {sel[0]}" if sel else "선택된 파일: 없음"
 
-    MyApp().run()
+        list_view.bind(selection=on_list_select)
+        tab_list.add_widget(list_view)
+        panel.add_widget(tab_list)
+
+        layout.add_widget(panel)
+        return layout
 
 
 # ==============================================================================
 # 16. 트리 뷰
 # ==============================================================================
-"""
-[TreeView]
-  - 계층적 트리 구조 표시
-  - hide_root: 루트 숨기기
+class Example16App(App):
+    """TreeView, TreeViewLabel 예제"""
 
-[TreeViewLabel]
-  - 트리 노드 라벨
-  - is_open: 펼침/접힘
-  - is_leaf: 최하위 노드 여부
-"""
-def example_16():
-    from kivy.uix.treeview import TreeView, TreeViewLabel
+    def build(self):
+        layout = BoxLayout(orientation="vertical", padding=20, spacing=10)
 
-    class MyApp(App):
-        def build(self):
-            layout = BoxLayout(orientation='vertical', padding=20, spacing=10)
+        tv = TreeView(hide_root=False, size_hint=(1, 1))
 
-            tv = TreeView(hide_root=False, size_hint=(1, 1))
+        root = tv.add_node(TreeViewLabel(text="프로젝트", font_name=FONT_PATH, is_open=True))
 
-            # 루트 노드
-            root = tv.add_node(TreeViewLabel(text='프로젝트', font_name=FONT_PATH, is_open=True))
+        src = tv.add_node(TreeViewLabel(text="src", font_name=FONT_PATH, is_open=True), root)
+        tv.add_node(TreeViewLabel(text="main.py", font_name=FONT_PATH), src)
+        tv.add_node(TreeViewLabel(text="app.py", font_name=FONT_PATH), src)
+        tv.add_node(TreeViewLabel(text="utils.py", font_name=FONT_PATH), src)
 
-            # 소스 코드
-            src = tv.add_node(TreeViewLabel(text='src', font_name=FONT_PATH, is_open=True), root)
-            tv.add_node(TreeViewLabel(text='main.py', font_name=FONT_PATH), src)
-            tv.add_node(TreeViewLabel(text='app.py', font_name=FONT_PATH), src)
-            tv.add_node(TreeViewLabel(text='utils.py', font_name=FONT_PATH), src)
+        res = tv.add_node(TreeViewLabel(text="resources", font_name=FONT_PATH, is_open=True), root)
+        img = tv.add_node(TreeViewLabel(text="images", font_name=FONT_PATH, is_open=True), res)
+        tv.add_node(TreeViewLabel(text="logo.png", font_name=FONT_PATH), img)
+        tv.add_node(TreeViewLabel(text="icon.png", font_name=FONT_PATH), img)
+        fonts = tv.add_node(TreeViewLabel(text="fonts", font_name=FONT_PATH), res)
+        tv.add_node(TreeViewLabel(text="malgun.ttf", font_name=FONT_PATH), fonts)
 
-            # 리소스
-            res = tv.add_node(TreeViewLabel(text='resources', font_name=FONT_PATH, is_open=True), root)
-            img = tv.add_node(TreeViewLabel(text='images', font_name=FONT_PATH, is_open=True), res)
-            tv.add_node(TreeViewLabel(text='logo.png', font_name=FONT_PATH), img)
-            tv.add_node(TreeViewLabel(text='icon.png', font_name=FONT_PATH), img)
-            fonts = tv.add_node(TreeViewLabel(text='fonts', font_name=FONT_PATH), res)
-            tv.add_node(TreeViewLabel(text='malgun.ttf', font_name=FONT_PATH), fonts)
+        config = tv.add_node(TreeViewLabel(text="config", font_name=FONT_PATH), root)
+        tv.add_node(TreeViewLabel(text="settings.json", font_name=FONT_PATH), config)
 
-            # 설정
-            config = tv.add_node(TreeViewLabel(text='config', font_name=FONT_PATH), root)
-            tv.add_node(TreeViewLabel(text='settings.json', font_name=FONT_PATH), config)
-
-            layout.add_widget(tv)
-            return layout
-
-    MyApp().run()
+        layout.add_widget(tv)
+        return layout
 
 
 # ==============================================================================
 # 17. 색상 선택기
 # ==============================================================================
-"""
-[ColorPicker]
-  - 색상 선택 위젯
-  - color: (r, g, b, a) 현재 선택 색상
-  - on_color: 색상 변경 이벤트
-"""
-def example_17():
-    from kivy.uix.colorpicker import ColorPicker
+class Example17App(App):
+    """ColorPicker 예제"""
 
-    class MyApp(App):
-        def build(self):
-            layout = BoxLayout(orientation='vertical', spacing=15, padding=20)
+    def build(self):
+        layout = BoxLayout(orientation="vertical", spacing=15, padding=20)
 
-            # 색상 표시 라벨
-            color_label = Label(
-                text='RGB: (1.0, 1.0, 1.0)',
-                font_name=FONT_PATH,
-                font_size=18,
-                size_hint=(1, 0.15)
+        color_label = Label(text="RGB: (1.00, 1.00, 1.00)", font_name=FONT_PATH, font_size=18, size_hint=(1, 0.15))
+        layout.add_widget(color_label)
+
+        # 색상 미리보기
+        preview = FloatLayout(size_hint=(1, 0.2))
+        with preview.canvas:
+            c = GfxColor(1, 1, 1, 1)
+            r = Rectangle(pos=preview.pos, size=preview.size)
+            preview.bind(
+                pos=lambda inst, v, r=r: setattr(r, "pos", v),
+                size=lambda inst, v, r=r: setattr(r, "size", v),
             )
-            layout.add_widget(color_label)
 
-            # 색상 미리보기 박스
-            from kivy.uix.floatlayout import FloatLayout
-            from kivy.graphics import Color, Rectangle
-            preview = FloatLayout(size_hint=(1, 0.2))
-            with preview.canvas:
-                c = Color(1, 1, 1, 1)
-                r = Rectangle(pos=preview.pos, size=preview.size)
-                preview.bind(
-                    pos=lambda i, v, r=r: setattr(r, 'pos', v),
-                    size=lambda i, v, r=r: setattr(r, 'size', v)
-                )
+        picker = ColorPicker(size_hint=(1, 0.55))
 
-            picker = ColorPicker(size_hint=(1, 0.55))
-            def on_color(instance, value):
-                c.r, c.g, c.b, c.a = value
-                color_label.text = f'RGB: ({value[0]:.2f}, {value[1]:.2f}, {value[2]:.2f})'
-            picker.bind(color=on_color)
+        def on_color(instance, value):
+            c.r, c.g, c.b, c.a = value
+            color_label.text = f"RGB: ({value[0]:.2f}, {value[1]:.2f}, {value[2]:.2f})"
 
-            layout.add_widget(preview)
-            layout.add_widget(picker)
-            layout.add_widget(color_label)
-            return layout
+        picker.bind(color=on_color)
 
-    MyApp().run()
+        layout.add_widget(preview)
+        layout.add_widget(picker)
+        layout.add_widget(color_label)
+        return layout
 
 
 # ==============================================================================
 # 18. 스캐터 (드래그/줌)
 # ==============================================================================
-"""
-[Scatter]
-  - 드래그 및 줌(핀치) 가능한 컨테이너
-  - do_translation: 드래그 허용
-  - do_rotation: 회전 허용
-  - do_scale: 줌 허용
-  - auto_bring_to_front: 터치 시 최상위로
-"""
-def example_18():
-    from kivy.uix.scatter import Scatter
+class Example18App(App):
+    """Scatter 예제 (드래그/핀치줌/회전)"""
 
-    class MyApp(App):
-        def build(self):
-            from kivy.uix.floatlayout import FloatLayout
-            root = FloatLayout()
+    def build(self):
+        root = FloatLayout()
 
-            # 드래그 + 줌 + 회전 가능 이미지
-            scatter = Scatter(
-                pos_hint={'center_x': 0.5, 'center_y': 0.5},
-                size_hint=(None, None),
-                size=(200, 200),
-                do_translation=True,
-                do_rotation=True,
-                do_scale=True,
-                auto_bring_to_front=True
-            )
+        scatter = Scatter(
+            pos_hint={"center_x": 0.5, "center_y": 0.5},
+            size_hint=(None, None),
+            size=(200, 200),
+            do_translation=True,
+            do_rotation=True,
+            do_scale=True,
+            auto_bring_to_front=True,
+        )
+        img = AsyncImage(
+            source="https://kivy.org/logos/kivy_logo_black_256.png",
+            allow_stretch=True,
+            keep_ratio=True,
+        )
+        scatter.add_widget(img)
+        root.add_widget(scatter)
 
-            from kivy.uix.image import AsyncImage
-            img = AsyncImage(
-                source='https://kivy.org/logos/kivy_logo_black_256.png',
-                allow_stretch=True,
-                keep_ratio=True
-            )
-            scatter.add_widget(img)
-            root.add_widget(scatter)
+        root.add_widget(Label(
+            text="이미지를 드래그/핀치줌/회전하세요",
+            font_name=FONT_PATH, font_size=14,
+            pos_hint={"top": 1}, size_hint=(1, 0.08),
+        ))
 
-            # 안내 라벨
-            info = Label(
-                text='이미지를 드래그/핀치줌/회전하세요',
-                font_name=FONT_PATH,
-                font_size=14,
-                pos_hint={'top': 1},
-                size_hint=(1, 0.08)
-            )
-            root.add_widget(info)
-
-            return root
-
-    MyApp().run()
+        return root
 
 
 # ==============================================================================
-# 19. 비디오 플레이어
+# 19. 비디오 & 카메라
 # ==============================================================================
-"""
-[VideoPlayer]
-  - 비디오 재생 플레이어 (컨트롤 포함)
-  - source: 비디오 파일 경로/URL
-  - state: 'play', 'pause', 'stop'
-  - options: 비디오 디코딩 옵션
+class Example19App(App):
+    """VideoPlayer, Camera 예제"""
 
-[Video]
-  - 기본 비디오 위젯 (컨트롤 없음)
+    def build(self):
+        panel = TabbedPanel()
 
-[Camera]
-  - 카메라 위젯
-  - play: 카메라 on/off
-  - resolution: 해상도
-"""
-def example_19():
-    from kivy.uix.videoplayer import VideoPlayer
-    from kivy.uix.camera import Camera
+        # 비디오 플레이어 탭
+        tab1 = TabbedPanelItem(text="비디오")
+        v_layout = BoxLayout(orientation="vertical", spacing=10, padding=10)
+        v_layout.add_widget(Label(
+            text="비디오 플레이어 예제\n(로컬 비디오 파일이 필요합니다)",
+            font_name=FONT_PATH, font_size=16, size_hint=(1, 0.3),
+        ))
+        # 실제 파일 경로로 변경:
+        # v_layout.add_widget(VideoPlayer(source="video.mp4", state="play"))
+        tab1.add_widget(v_layout)
+        panel.add_widget(tab1)
 
-    class MyApp(App):
-        def build(self):
-            from kivy.uix.tabbedpanel import TabbedPanel, TabbedPanelItem
-            panel = TabbedPanel()
+        # 카메라 탭
+        tab2 = TabbedPanelItem(text="카메라")
+        cam_layout = BoxLayout(orientation="vertical", spacing=10, padding=10)
+        try:
+            cam = Camera(play=True, resolution=(640, 480), size_hint=(1, 0.8))
+            cam_layout.add_widget(cam)
+        except Exception:
+            cam_layout.add_widget(Label(text="카메라를 사용할 수 없습니다", font_name=FONT_PATH, font_size=18))
+        tab2.add_widget(cam_layout)
+        panel.add_widget(tab2)
 
-            # 비디오 플레이어 탭
-            tab1 = TabbedPanelItem(text='비디오')
-            layout = BoxLayout(orientation='vertical', spacing=10, padding=10)
-            layout.add_widget(Label(
-                text='비디오 플레이어 예제\n(로컬 비디오 파일이 필요합니다)',
-                font_name=FONT_PATH, font_size=16, size_hint=(1, 0.3)
-            ))
-            # 실제 파일 경로로 변경 필요:
-            # player = VideoPlayer(source='video.mp4', state='play')
-            # layout.add_widget(player)
-            tab1.add_widget(layout)
-            panel.add_widget(tab1)
-
-            # 카메라 탭
-            tab2 = TabbedPanelItem(text='카메라')
-            cam_layout = BoxLayout(orientation='vertical', spacing=10, padding=10)
-            try:
-                cam = Camera(
-                    play=True,
-                    resolution=(640, 480),
-                    size_hint=(1, 0.8)
-                )
-                cam_layout.add_widget(cam)
-            except Exception:
-                cam_layout.add_widget(Label(
-                    text='카메라를 사용할 수 없습니다',
-                    font_name=FONT_PATH, font_size=18
-                ))
-            tab2.add_widget(cam_layout)
-            panel.add_widget(tab2)
-
-            return panel
-
-    MyApp().run()
+        return panel
 
 
 # ==============================================================================
 # 20. 말풍선 (Bubble)
 # ==============================================================================
-"""
-[Bubble]
-  - 말풍선 위젯
-  - arrow_pos: 화살표 위치 ('left_top', 'left_mid', 'left_bottom',
-    'right_top', 'right_mid', 'right_bottom',
-    'top_left', 'top_mid', 'top_right',
-    'bottom_left', 'bottom_mid', 'bottom_right')
-  - show_arrow: 화살표 표시 여부
+class Example20App(App):
+    """Bubble, BubbleButton 예제"""
 
-[BubbleButton]
-  - 말풍선 내부 버튼
-"""
-def example_20():
-    from kivy.uix.bubble import Bubble, BubbleButton
+    def build(self):
+        root = FloatLayout()
 
-    class MyApp(App):
-        def build(self):
-            from kivy.uix.floatlayout import FloatLayout
-            root = FloatLayout()
+        # 말풍선
+        bubble = Bubble(
+            size_hint=(None, None),
+            size=(250, 80),
+            pos_hint={"center_x": 0.5, "center_y": 0.6},
+            arrow_pos="bottom_mid",
+            show_arrow=True,
+        )
+        for action in ["복사", "잘라내기", "붙여넣기"]:
+            bubble.add_widget(BubbleButton(
+                text=action, font_name=FONT_PATH, font_size=14,
+                on_press=lambda x, a=action: print(f"{a} 클릭"),
+            ))
+        root.add_widget(bubble)
 
-            # 말풍선
-            bubble = Bubble(
-                size_hint=(None, None),
-                size=(250, 80),
-                pos_hint={'center_x': 0.5, 'center_y': 0.6},
-                arrow_pos='bottom_mid',
-                show_arrow=True
-            )
-            for action in ['복사', '잘라내기', '붙여넣기']:
-                bubble.add_widget(BubbleButton(
-                    text=action,
-                    font_name=FONT_PATH,
-                    font_size=14,
-                    on_press=lambda x, a=action: print(f'{a} 클릭')
-                ))
-            root.add_widget(bubble)
+        # 다양한 화살표 위치
+        for i, pos in enumerate(["left_mid", "top_mid", "right_mid"]):
+            b = Bubble(size_hint=(None, None), size=(120, 50), arrow_pos=pos,
+                       pos_hint={"x": 0.1 + i * 0.3, "y": 0.15})
+            b.add_widget(BubbleButton(text=pos, font_size=10))
+            root.add_widget(b)
 
-            # 다양한 화살표 위치
-            for i, pos in enumerate(['left_mid', 'top_mid', 'right_mid']):
-                b = Bubble(
-                    size_hint=(None, None),
-                    size=(120, 50),
-                    arrow_pos=pos,
-                    pos_hint={'x': 0.1 + i * 0.3, 'y': 0.15}
-                )
-                b.add_widget(BubbleButton(text=pos, font_size=10))
-                root.add_widget(b)
+        root.add_widget(Label(
+            text="말풍선(Bubble) 예제",
+            font_name=FONT_PATH, font_size=18,
+            pos_hint={"top": 1}, size_hint=(1, 0.08),
+        ))
 
-            info = Label(
-                text='말풍선(Bubble) 예제',
-                font_name=FONT_PATH, font_size=18,
-                pos_hint={'top': 1}, size_hint=(1, 0.08)
-            )
-            root.add_widget(info)
-
-            return root
-
-    MyApp().run()
+        return root
 
 
 # ==============================================================================
 # 21. 스텐실 뷰 (마스킹)
 # ==============================================================================
-"""
-[StencilView]
-  - 자식 위젯을 특정 영역으로 클리핑(마스킹)
-  - 자식이 영역 밖으로 나가면 보이지 않음
-"""
-def example_21():
-    from kivy.uix.stencilview import StencilView
+class Example21App(App):
+    """StencilView 예제"""
 
-    class MyApp(App):
-        def build(self):
-            layout = BoxLayout(orientation='vertical', spacing=10, padding=20)
+    def build(self):
+        layout = BoxLayout(orientation="vertical", spacing=10, padding=20)
 
-            # 스텐실 뷰 (100x100 영역만 표시)
-            stencil = StencilView(
-                size_hint=(None, None),
-                size=(150, 150),
-                pos_hint={'center_x': 0.5, 'center_y': 0.5}
-            )
+        layout.add_widget(Label(
+            text="스텐실 뷰: 150x150 영역만 표시",
+            font_name=FONT_PATH, font_size=16, size_hint=(1, 0.1),
+        ))
 
-            # 큰 라벨 (스텐실 영역 밖은 보이지 않음)
-            big_label = Label(
-                text='A B C D E F G H I J K L M N O P',
-                font_size=30,
-                size_hint=(None, None),
-                size=(400, 400)
-            )
-            stencil.add_widget(big_label)
+        fl = FloatLayout()
+        stencil = StencilView(
+            size_hint=(None, None),
+            size=(150, 150),
+            pos_hint={"center_x": 0.5, "center_y": 0.5},
+        )
+        big_label = Label(
+            text="A B C D E F G H I J K L M N O P",
+            font_size=30,
+            size_hint=(None, None),
+            size=(400, 400),
+        )
+        stencil.add_widget(big_label)
+        fl.add_widget(stencil)
+        layout.add_widget(fl)
 
-            from kivy.uix.floatlayout import FloatLayout
-            fl = FloatLayout()
-            fl.add_widget(stencil)
-
-            layout.add_widget(Label(
-                text='스텐실 뷰: 150x150 영역만 표시',
-                font_name=FONT_PATH, font_size=16, size_hint=(1, 0.1)
-            ))
-            layout.add_widget(fl)
-            return layout
-
-    MyApp().run()
+        return layout
 
 
 # ==============================================================================
 # 22. RecycleView (대량 데이터 리스트)
 # ==============================================================================
-"""
-[RecycleView]
-  - 대량 데이터 리스트를 효율적으로 표시
-  - ListView보다 성능이 좋음
-  - data: 데이터 목록 (딕셔너리 리스트)
-  - viewclass: 각 항목의 위젯 클래스
-  - RecycleBoxLayout / RecycleGridLayout로 레이아웃 지정
-"""
-def example_22():
-    from kivy.uix.recycleview import RecycleView
-    from kivy.uix.recycleboxlayout import RecycleBoxLayout
-    from kivy.uix.recycleview.views import RecycleDataViewBehavior
+class SelectableLabel(RecycleDataViewBehavior, Label):
+    """RecycleView에서 사용할 선택 가능 라벨"""
+    font_name = FONT_PATH
 
-    class SelectableLabel(RecycleDataViewBehavior, Label):
-        font_name = FONT_PATH
-        def on_touch_down(self, touch):
-            if self.collide_point(*touch.pos):
-                print(f'선택: {self.text}')
-                return True
-            return super().on_touch_down(touch)
+    def on_touch_down(self, touch):
+        if self.collide_point(*touch.pos):
+            print(f"선택: {self.text}")
+            return True
+        return super().on_touch_down(touch)
 
-    class MyApp(App):
-        def build(self):
-            rv = RecycleView(
-                viewclass=SelectableLabel,
-                size_hint=(1, 1),
-                bar_width='10dp'
-            )
 
-            layout = RecycleBoxLayout(
-                orientation='vertical',
-                spacing='5dp',
-                default_size=(None, '40dp'),
-                default_size_hint=(1, None),
-                size_hint_y=None
-            )
-            layout.bind(minimum_height=layout.setter('height'))
-            rv.layout_manager = layout
+class Example22App(App):
+    """RecycleView 예제"""
 
-            # 대량 데이터
-            rv.data = [{'text': f'항목 {i}: 데이터 예제 {i*100}'} for i in range(100)]
+    def build(self):
+        rv = RecycleView(
+            viewclass=SelectableLabel,
+            size_hint=(1, 1),
+            bar_width="10dp",
+        )
 
-            return rv
+        layout = RecycleBoxLayout(
+            orientation="vertical",
+            spacing="5dp",
+            default_size=(None, "40dp"),
+            default_size_hint=(1, None),
+            size_hint_y=None,
+        )
+        layout.bind(minimum_height=layout.setter("height"))
+        rv.layout_manager = layout
 
-    MyApp().run()
+        rv.data = [{"text": f"항목 {i}: 데이터 예제 {i * 100}"} for i in range(100)]
+
+        return rv
 
 
 # ==============================================================================
-# 메인 실행부 - 섹션 번호로 예제 선택
+# 메인 실행부
 # ==============================================================================
 EXAMPLES = {
-    1:  ('버튼 & 토글 버튼', example_1),
-    2:  ('텍스트 입력 & 코드 입력', example_2),
-    3:  ('라벨 & 이미지', example_3),
-    4:  ('체크박스 & 스위치', example_4),
-    5:  ('슬라이더 & 프로그레스 바', example_5),
-    6:  ('스크롤 뷰', example_6),
-    7:  ('레이아웃 모음', example_7),
-    8:  ('탭 패널', example_8),
-    9:  ('팝업 & 모달뷰', example_9),
-    10: ('스피너', example_10),
-    11: ('드롭다운 메뉴', example_11),
-    12: ('액션 바', example_12),
-    13: ('캐러셀', example_13),
-    14: ('화면 관리자 (ScreenManager)', example_14),
-    15: ('파일 선택기', example_15),
-    16: ('트리 뷰', example_16),
-    17: ('색상 선택기', example_17),
-    18: ('스캐터 (드래그/줌)', example_18),
-    19: ('비디오 & 카메라', example_19),
-    20: ('말풍선 (Bubble)', example_20),
-    21: ('스텐실 뷰', example_21),
-    22: ('RecycleView (대량 데이터)', example_22),
+    1:  ("버튼 & 토글 버튼",              Example1App),
+    2:  ("텍스트 입력 & 코드 입력",        Example2App),
+    3:  ("라벨 & 이미지",                 Example3App),
+    4:  ("체크박스 & 스위치",             Example4App),
+    5:  ("슬라이더 & 프로그레스 바",       Example5App),
+    6:  ("스크롤 뷰",                     Example6App),
+    7:  ("레이아웃 모음",                  Example7App),
+    8:  ("탭 패널",                       Example8App),
+    9:  ("팝업 & 모달뷰",                 Example9App),
+    10: ("스피너",                        Example10App),
+    11: ("드롭다운 메뉴",                  Example11App),
+    12: ("액션 바",                       Example12App),
+    13: ("캐러셀",                        Example13App),
+    14: ("화면 관리자 (ScreenManager)",   Example14App),
+    15: ("파일 선택기",                    Example15App),
+    16: ("트리 뷰",                       Example16App),
+    17: ("색상 선택기",                    Example17App),
+    18: ("스캐터 (드래그/줌)",            Example18App),
+    19: ("비디오 & 카메라",                Example19App),
+    20: ("말풍선 (Bubble)",               Example20App),
+    21: ("스텐실 뷰",                     Example21App),
+    22: ("RecycleView (대량 데이터)",     Example22App),
 }
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     if len(sys.argv) > 1:
         num = int(sys.argv[1])
         if num in EXAMPLES:
-            print(f'\n🚀 예제 {num}: {EXAMPLES[num][0]}\n')
-            EXAMPLES[num][1]()
+            print(f"\n🚀 예제 {num}: {EXAMPLES[num][0]}\n")
+            EXAMPLES[num][1]().run()
         else:
-            print('사용법: python kivy_widgets_guide.py [1-22]')
+            print("사용법: python kivy_widgets_guide.py [1-22]")
             for k, v in EXAMPLES.items():
-                print(f'  {k:2d}: {v[0]}')
+                print(f"  {k:2d}: {v[0]}")
     else:
-        print('='*60)
-        print('  Kivy GUI 위젯 전체 사용 예제 가이드')
-        print('='*60)
+        print("=" * 60)
+        print("  Kivy GUI 위젯 전체 사용 예제 가이드")
+        print("=" * 60)
         print()
-        print('사용법: python kivy_widgets_guide.py [번호]')
+        print("사용법: python kivy_widgets_guide.py [번호]")
         print()
         for k, v in EXAMPLES.items():
-            print(f'  {k:2d}. {v[0]}')
+            print(f"  {k:2d}. {v[0]}")
         print()
         print('예: python kivy_widgets_guide.py 1  (버튼 예제 실행)')
